@@ -1,0 +1,74 @@
+{
+  "data": {
+    "data_formatter": {
+      "columns_to_remove": ["PassengerId", "Name", "Ticket", "Cabin"],
+      "categorical_encoder": "sklearn_LabelEncoder",
+      "numeric_fill_value": "column_mean"
+    },
+    "inputs": {
+      "train": {
+        "engine": {
+          "id": "pandas",
+          "mode": "read",
+          "parameters": {
+            "filepath_or_buffer": "input/train.csv"
+          }
+        },
+        "target_column": "Survived",
+        "split_method": "stratified"
+      },
+      "test": {
+        "engine": {
+          "id": "pandas",
+          "mode": "read",
+          "parameters": {
+            "filepath_or_buffer": "input/test.csv"
+          }
+        }
+      }
+    },
+    "output": {
+      "columns_to_remove": ["Pclass","Name","Sex","Age","SibSp","Parch","Ticket","Fare","Cabin","Embarked"],
+      "engine": {
+          "id": "pandas",
+          "mode": "write",
+          "parameters": {
+            "path_or_buf": "titanic_submission.csv",
+            "index": false
+          }
+        }
+    }
+  },
+  "model_pool": {
+    "predict_as_probability": false,
+    "number_cv_folds": 5,
+    "pool": {
+      "pipeline_models": [
+        {
+          "model": {
+            "id": "xgboost_XGBClassifier",
+            "label": "XGBoost classifier",
+            "print_feature_importance": true,
+            "parameters": {
+            }
+          }
+        },
+        {
+          "model": {
+            "id": "sklearn_LogisticRegressionCV",
+            "label": "Logistic Regression + Hyperparameter search with CV",
+            "print_feature_importance": true,
+            "parameters": {
+            }
+          }
+        }
+      ],
+      "ensemble_models": [
+      ]
+    },
+    "scorer": {
+      "id": "accuracy",
+      "is_score_ascending": true
+    }
+  }
+}
