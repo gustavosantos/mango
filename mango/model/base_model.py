@@ -51,6 +51,8 @@ class BaseModel(object):
             if data.is_log_target():
                 score_targets = np.exp(score_targets)
                 predictions = np.exp(predictions)
+                fit_targets = np.exp(fit_targets)
+                training_predictions = np.exp(training_predictions)
 
             scores.append(self.score_method_(predictions, score_targets))
 
