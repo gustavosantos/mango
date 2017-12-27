@@ -123,6 +123,7 @@ class DataFormatter(object):
                 #Ignore text columns processed by TextFormatter
                 continue
             column_values = engine.get_column_as_array(column_name)
+            column_values = [str(elem) for elem in column_values]
             #Replace nan to deal with missing data
             nan_replacer = np.vectorize(self.replace_nan)
             column_values = nan_replacer(column_values)
