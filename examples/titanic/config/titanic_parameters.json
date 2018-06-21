@@ -14,8 +14,7 @@
             "filepath_or_buffer": "input/train.csv"
           }
         },
-        "target_column": "Survived",
-        "split_method": "stratified"
+        "target_column": "Survived"
       },
       "test": {
         "engine": {
@@ -41,7 +40,12 @@
   },
   "model_pool": {
     "predict_as_probability": false,
-    "number_cv_folds": 5,
+    "splitter":{
+      "id": "mangoml_sklearn_StratifiedKFold",
+      "parameters": {
+        "n_splits": 5
+      }
+    },
     "pool": {
       "pipeline_models": [
         {

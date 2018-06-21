@@ -1,14 +1,11 @@
 """Module that contains main"""
-import sys
-sys.path.append('../../')
-
 import json
 import numpy as np
 
-from mango.data.data import Data
-from mango.data.result import Result
-from mango.data.data_formatter import DataFormatter
-from mango.model.model_pool import ModelPool
+from mangoml.data.data import Data
+from mangoml.data.result import Result
+from mangoml.data.data_formatter import DataFormatter
+from mangoml.model.model_pool import ModelPool
 
 def read_config(config_filename):
     """Read JSON configuration file"""

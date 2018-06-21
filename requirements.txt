@@ -1,9 +1,0 @@
-sklearn
-numpy>=1.13
-scipy>=1.0.0
-pandas>=0.21
-bs4
-matplotlib>=2.1.1
-nltk>=3.2.5
-xgboost
-fbprophet>=0.2.1
