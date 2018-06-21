@@ -24,8 +24,7 @@ Let's take a look at *titanic\_parameters.json*, the configuration file with all
           "filepath_or_buffer": "input/train.csv"
         }
       },
-      "target_column": "Survived",
-      "split_method": "stratified"
+      "target_column": "Survived"
     },
     "test": {
       "engine": {
@@ -43,7 +42,7 @@ Let's take a look at *titanic\_parameters.json*, the configuration file with all
         "id": "pandas",
         "mode": "write",
         "parameters": {
-          "path_or_buf": "output/titanic_submission.csv",
+          "path_or_buf": "titanic_submission.csv",
           "index": false
         }
       }
@@ -55,7 +54,7 @@ There are three main objects inside Data: *data\_formatter*, *inputs* and *outpu
 
 In the object *data\_formatter* we configure operations that will be performed for both training and testing data processing. For this example we configured three parameters: the CSV columns that won't be used during our modelling (*columns\_to\_remove*), the object that will encode categorical data (*categorical\_encoder*) and how we will fill missing numeric data (*numeric\_fill\_value*). It's important to use an encoder and fill missing numeric values because some models are not capable of dealing with raw string fields or missing data.
 
-The object *inputs* is where we configure the data reading through a pandas wrapper. For the training data we must specify the target column (*target\_column*) and how the data will be splitted during cross validation (*split\_method*). The *parameters* attribute inside both the *train* and *test* objects are just the arguments for the pandas method [read\_csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html).
+The object *inputs* is where we configure the data reading through a pandas wrapper. For the training data we must specify the target column (*target\_column*). The *parameters* attribute inside both the *train* and *test* objects are just the arguments for the pandas method [read\_csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html).
 
 In the object *output* we configure how the model predictions will be formatted when we create a CSV output file using the test data. For the titanic submissions we will remove all the columns from the test data, except the PassengerId. The *parameters* attribute is the argument used by the pandas method [to\_csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.to_csv.html).
 
@@ -64,7 +63,12 @@ In the object *output* we configure how the model predictions will be formatted 
 ```json
 "model_pool": {
   "predict_as_probability": false,
-  "number_cv_folds": 5,
+  "splitter":{
+    "id": "mangoml_sklearn_StratifiedKFold",
+    "parameters": {
+      "n_splits": 5
+    }
+  },
   "pool": {
     "pipeline_models": [
       {
@@ -96,7 +100,9 @@ In the object *output* we configure how the model predictions will be formatted 
 }
 ```
 
-Here, we configure a pool of models that will have their performance compared through cross validation. After the comparison, we pick the best model and train it with all the available training data. The best model is then used to make predictions for the test data. Inside this object we can configure if the models will predict probabilities (*predict\_as\_probability*) and the number of folds used during cross validation (*number\_cv\_folds*). We also configure the models that will be compared using cross validation (inside the *pool* object) and the scoring method (inside the *scorer* object).
+Here, we configure a pool of models that will have their performance compared through cross-validation. After the comparison, we pick the best model and train it with all the available training data. The best model is then used to make predictions for the test data.
+
+The splitting method used for cross-validation is configured using the *splitter* object. In this example we use a stratified K-fold cross-validation with 5 bins. We configure if the models will predict probabilities using the attribute *predict\_as\_probability*. We also configure the models that will be compared using cross-validation (inside the *pool* object) and the scoring method (inside the *scorer* object).
 
 We can use two types of models inside the pool: *pipeline\_models* and *ensemble\_models*. For this tutorial we will use only *pipeline\_models*. These models are inspired by the [Pipeline](http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) object from scikit-learn (in fact, they are implemented using it). The idea is simple: we configure all the steps used during a machine learning pipeline, from preprocessors like [StandardScaler](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) to calibrators like [CalibratedClassifierCV](http://scikit-learn.org/stable/modules/generated/sklearn.calibration.CalibratedClassifierCV.html). We then configure the type of model that will be used. In this example we will compare two models: the [XGBClassifier](http://xgboost.readthedocs.io/en/latest/python/python_api.html) from xgboost and the [LogisticRegression](http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegressionCV.html) from scikit-learn.
 
@@ -160,7 +166,7 @@ def create_output_file(configs, test_data, predictions):
     result.build_file()
 ```
 
-And we're done! After running the code we will obtain an output file that can be submitted to Kaggle as our model's prediction. The cross validation results will be printed and you will have an idea of how well the model will perform with the test data (and hopefully with any unseen data!).
+And we're done! After running the code we will obtain an output file that can be submitted to Kaggle as our model's prediction. The cross-validation results will be printed and you will have an idea of how well the model will perform with the test data (and hopefully with any unseen data!).
 
 We can do more than we did in this example: we could try using different models, configuring the pipeline\_model parameters to obtain better results or preprocessing the input columns. Maybe we should try ensembling some models? All of this can be done through the JSON configuration file. 
 
